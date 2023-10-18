@@ -4,31 +4,21 @@ row = []
 col = []
 mat = []
 
-
-def rowtest():
-    print('Rows:\n' + str(row))
-
-def coltest():
-    print('\nColumns:\n' + str(col))
-
-def mattest():
-    print('\nColumns:\n' + str(mat))
-
-
+def rem(product: int, quotient: int) -> int: #remainder calculator - why?? % exists??
+    return product - (product // quotient) * quotient
 
 def lstring(string: str, length: int, char: str):
     out = ''
-    if len(string) - length < 0:
+    if length - len(string) < 0:
         return string
-    for i in range(len(string) - length):
+    for _ in range(length - len(string)):
         out += char
     return out + string
 
-def maketestrawstr() -> str:
-    out: str = ''
+def maketestrawstr() -> list:
+    out: list = []
     for i in range(81):
-        i += 1
-        out += lstring(i, 2, ' ')
+        out.append(lstring(str(i), 2, ' '))
     return out
 
 
@@ -41,7 +31,7 @@ def makerow(rawstr: str) -> list[list[str]]:
         out.append([*rawstr[i : i + 9]])
     return out
 
-def makecol(rawstr: str) -> list[list[str]]:
+def makecol(rawstr: str | list) -> list[list[str]]:
     out: list = []
     for i in range(9): #get columns
         out.append([rawstr[j] for j in range(i, len(rawstr), int(len(rawstr)/9)) ])
@@ -71,6 +61,9 @@ row = makerow(rawstr)
 col = makecol(rawstr)
 mat = makemat(row)
 
-maketestrawstr()
+rawtest = maketestrawstr()
+
+testrow = makerow(rawtest)
 
 #showsudoku(row)
+showsudoku(testrow)

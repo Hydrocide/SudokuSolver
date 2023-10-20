@@ -49,6 +49,74 @@ class Board:
     row: list[list[int]]
     mat: list[list[int]]
 
+    def _makeintlist(rawstr: str, valuelength: int = 1) -> list[int]:
+        """
+        Make Integer List\n
+        Take in a string and return a list containing all values in said list\n
+        Parameters:
+            * rawstr - string to be converted into list
+            * valuelength - length of each value in rawstr, default = 1\n
+        Additional Info:
+            * string length must be a perfect square
+        """
+        if len(rawstr) != int(len(rawstr)**(0.5))**2: 
+            raise Exception("String length %d is not a perfect square" % (len(rawstr)))
+        out: list[int] = []
+        for i in range(0, len(rawstr), valuelength):
+            out.append(int(rawstr[i : i + valuelength]))
+        return out
+
+    def _makerow(intlist: list[int]) -> list[list[str]]:
+        """
+        Make Row Matrix\n
+        Take in a list of integers and return a list containing a list of rows\n
+            * intlist - list of integers to be converted into list of rows\n
+        Additional Information
+        \- len(intlist) must be equal to sidesize**2
+        """
+        sidesize = int(len(intlist)**0.5)
+        #return [intlist[i : i + sidesize] for i in range(0, len(intlist), sidesize)] #single line
+        out: list = []
+        for i in range(0, len(intlist), sidesize):
+            out.append(intlist[i : i + sidesize])
+        return out
+
+    def _makecol(intlist: list[int]) -> list[list[str]]:
+        """
+        Make Col Matrix\n
+        Take in a list of integers and return a list containing a list of columns\n
+            * intlist - list of integers to be converted into list of rows
+        """
+        sidesize = int(len(intlist)**0.5)
+        #return
+        out: list = []
+        for i in range(sidesize):
+            tempout: list = []
+            for j in range(i, len(intlist), sidesize):
+                tempout.append(intlist[j])
+            out.append(tempout)
+        return out
+
+    def _makesec(intlist: list[int]) -> list[list[str]]:
+        """
+        Make Sec Matrix\n
+        Take in a list of integers and return a list containing a list of sections.\n
+            * intlist - list of integers to be converted into list of rows\n
+        each section cooresponds to a rectangular group of numbers within the 
+        board - currently only 9 3x3 sections are implemented. (unique section size has not yet been implmented)\n
+        \- Example:\n
+            [ 0 ] [ 1 ] [ 2 ]\n
+            [ 3 ] [ 4 ] [ 5 ]\n
+            [ 6 ] [ 7 ] [ 8 ]\n
+        The numbers refer to the index location of that 3x3 group of numbers, with the sublist having the same indexing method.\n
+        """
+        sidesize = int(len(intlist)**0.5)
+        #return [[intlist[j] for j in range(i, len(intlist), sidesize)] for i in range(sidesize)] #single line
+        seclist: list[list[int]] = [[] for _ in range(sidesize)]
+        for num in intlist:
+            seclist[((num//9)//3)*3 + (num%9)//3].append(num)
+        return seclist
+
     def __init__(self, rawstring: str) -> None:
         if len(rawstring) != BOARD_AREA:
             raise Exception('Incorrect Board size!')

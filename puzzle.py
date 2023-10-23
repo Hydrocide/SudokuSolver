@@ -44,10 +44,15 @@ class GroupMap:
 
 class Board:
     
-    rawstring: str
+    rawstring: str #remove? - change to intlist?
+    mainboard: list[int]
     col: list[list[int]]
     row: list[list[int]]
     mat: list[list[int]]
+
+    def _isperfectsquare(num: int) -> bool:
+        return int(num**0.5)**2 == num
+
 
     def _makeintlist(rawstr: str, valuelength: int = 1) -> list[int]:
         """
@@ -65,7 +70,14 @@ class Board:
         for i in range(0, len(rawstr), valuelength):
             out.append(int(rawstr[i : i + valuelength]))
         return out
+    """
+    The below 3 functions should return index locations of columns, rows, sections etc.
+    instead of returning values at those sections.
 
+    TODO create "tile" class to hold (intlist) index location and possibilities
+        possibilities being a list of integers containing the possible values at that tile
+    """
+    
     def _makerow(intlist: list[int]) -> list[list[str]]:
         """
         Make Row Matrix\n
@@ -111,22 +123,40 @@ class Board:
         The numbers refer to the index location of that 3x3 group of numbers, with the sublist having the same indexing method.\n
         """
         sidesize = int(len(intlist)**0.5)
-        #return [[intlist[j] for j in range(i, len(intlist), sidesize)] for i in range(sidesize)] #single line
+        #return [[intlist[j] for j in range(i, len(intlist), sidesize)] for i in range(sidesize)] #single line - NOT WORKING
         seclist: list[list[int]] = [[] for _ in range(sidesize)]
-        for num in intlist:
-            seclist[((num//9)//3)*3 + (num%9)//3].append(num)
+        for i in range(len(intlist)):
+            seclist[((i//9)//3)*3 + (i%9)//3].append(intlist[i])
         return seclist
 
+
+    def generatetilepossibilities(self, index: int) -> list[int]:
+        """
+        
+        """
+        row_i = index//9
+        col_i = index%9
+        sec_i = ((index//9)//3)*3 + (index%9)//3
+        return
+
+    def generateboardpossibilities(self) -> None:
+        """
+        
+        """
+        pass
+
     def __init__(self, rawstring: str) -> None:
-        if len(rawstring) != BOARD_AREA:
-            raise Exception('Incorrect Board size!')
+        if not self._isperfectsquare(len(rawstring)):
+            raise Exception('Board size not prefect square')
         self.rawstring = rawstring
-        for i in range(0, 81, 9): #get rows
-            self.row.append(rawstring[i : i + 9])
-        for i in range(9): #get columns
-            self.col.append([rawstring[j] for j in range(i, 81, 9) ])
-        for i in range(9): #get 3x3
-            pass
+
+        intlist = self._makeintlist(rawstring)
+
+        self.row = self._makerow(intlist)
+        self.col = self._makecol(intlist)
+        self.sec = self._makesec(intlist)
+
+
     
     def __eq__(self, __value: object) -> bool:
         if type(__value) is Board:

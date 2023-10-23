@@ -15,8 +15,7 @@ def lstring(string: str, length: int, char: str):
         out += char
     return out + string
 
-
-def fastfindsqrt(perfsqr: int) -> int:
+def fastfindsqrt_WIP(perfsqr: int) -> int:
     """
     Fast Find Square Root\n
     !!! Near-Positively not needed !!!\n 
@@ -41,53 +40,8 @@ def fastfindsqrt(perfsqr: int) -> int:
         else: # found
             return num
 
-def maketestrawstr_outdated() -> list:
-    out: list = []
-    for i in range(81):
-        out.append(lstring(str(i), 2, ' '))
-    return out
-
 def maketestintlist(sidesize: int = 9) -> list[list[int]]:
     return [i for i in range(sidesize**2)]
-
-
-
-def showseclist_2_diffver(mat: list[list[str]]) -> str:
-    size = int(len(intlist)**0.5)
-    outline: str = ''
-    for sec_i in range(9):
-        outrow: str = ''
-        for line_i in range(0, 9, 3):
-            outrow += str(mat[sec_i][line_i: line_i + 3]) + ' '
-        outline += '\n'
-        if sec_i%3 == 2:
-            outline += outrow + '\n'
-    print(outline)
-    return outline
-
-def makerow_old(rawstr: str) -> list[list[str]]:
-    """
-    Make Row Matrix\n
-    Take in a list of integers and return a list containing a list of rows\n
-        * intlist - list of integers to be converted into list of rows
-    """
-    out: list = []
-    for i in range(0, len(rawstr), int(len(rawstr)/9)): #get rows
-        out.append([*rawstr[i : i + 9]])
-
-    return out
-
-def makecol_old(rawstr: str | list) -> list[list[str]]:
-    out: list = []
-    for i in range(9): #get columns
-        out.append([rawstr[j] for j in range(i, len(rawstr), int(len(rawstr)/9)) ])
-    return out
-
-def makesec_old(row: list[list[str]]) -> list[list[str]]:
-    out: list = []
-    for i in range(9): #get mat
-        pass
-    return out
 
 
 #NEW VER - added
@@ -108,6 +62,18 @@ def _makeintlist(rawstr: str, valuelength: int = 1) -> list[int]:
         out.append(int(rawstr[i : i + valuelength]))
     return out
 
+
+"""
+The _make### functions return a list based on the row/column/section selected.
+row[i] = the ith row of the sudoku puzzle 
+    (top = 0 to bottom = 8)
+
+col[i] = the ith column of the sudoku puzzle 
+    (left = 0 to right = 8)
+
+sec[i] = the ith section of the sudoku puzzle 
+    (top left 3x3 section = 0, top right 3x3 section = 2, bottom left 3x3 section = 6, bottom right 3x3 section = 8)
+"""
 def _makerow(intlist: list[int]) -> list[list[str]]:
     """
     Make Row Matrix\n
@@ -153,31 +119,15 @@ def _makesec(intlist: list[int]) -> list[list[str]]:
     sidesize = int(len(intlist)**0.5)
     #return [[intlist[i+((i//3)%3)*6] for i in range(sec*3, sec*3+9)] for sec in range(sidesize)] #single line
     seclist: list[list[int]] = [[] for _ in range(sidesize)]
+    for i in range(len(intlist)):
+        seclist[((i//9)//3)*3 + (i%9)//3].append(intlist[i])
+    return seclist
     
 
+"""
+The show###list functions print a string showing the current sudoku puzzle based on a ### list.
 
-
-    # TODO FIX FIX FIXFIXFIXFIXFIXFIXFIXFIXFIX
-
-
-
-
-    for segment in range(3):
-        for line_i in range(3):
-            seclist.extend([intlist[segment*3:(segment+1)*3]])
-
-    """ ONLY WORKS FOR TEST LIST
-    seclist: list[list[int]] = [[] for _ in range(sidesize)]
-    for num in intlist:
-        print(seclist)
-        seclist[((num//9)//3)*3 + (num%9)//3].append(num)
-    return seclist
-    """
-
-
-
-
-
+"""
 def showrowlist(row: list[list[str]]) -> str:
     outline = ''
     for i in range(len(row)): #get mat
@@ -185,7 +135,6 @@ def showrowlist(row: list[list[str]]) -> str:
         if not i%3 - 2:
             outline += '\n'
     print(outline)
-    print(row)
     return outline
 
 def showcollist(col: list[list[str]]) -> str:
@@ -204,28 +153,19 @@ def showcollist(col: list[list[str]]) -> str:
     print(outline)
     return outline
         
-def showseclist(mat: list[list[str]]) -> str:
-    size = int(len(intlist)**0.5)
+def showseclist(sec: list[list[str]]) -> str:
+    #Commented below is for future implementation of non standard grid sizes
+    # size = len(intlist)
+    # sidesize = int(len(intlist)**0.5)
     outline = ''
-
-    secarea = ''
-    print(mat)
-    for i in range(3):
-        secarea += str(mat[0][i*3:(i*3)+3]) + ' '
-    #print(secarea)
-
-    """
-    for i in range(3):
-        for j in range(3):
-            for line_i in range(3):
-                secline = ''
-                for sec_i in range(3):
-                    secline += str(mat[line_i][sec_i*3: sec_i*3 + 3]) + '  '
+    for secseg_i in range(0, 9, 3):
+        for line_i in range(3):
+            secline = ''
+            for sec_i in range(3):
+                secline += str(sec[sec_i + secseg_i][line_i*3: line_i*3 + 3]) + '  '
             outline += secline + '\n'
         outline += '\n'
-    """
-
-
+    
     print(outline)
     return outline
 
@@ -242,15 +182,23 @@ row = _makerow(intlist)
 col = _makecol(intlist)
 sec = _makesec(intlist)
 
-showrowlist(row)
-#showcollist(col)
-showseclist(sec)
+# showrowlist(row)
+# showcollist(col)
+# showseclist(sec)
 
+class section:
+    index: int
+    possibilities: list[int]
 
-# newintlist: list[int] = []
-# for i in intlist:
-#     newintlist.append(((i//9)//3)*3 + (i%9)//3)
+    def __init__(self, index: int, possibilities: list[int]) -> None:
+        self.index = index
+        self.possibilities = possibilities
+    
+testlist = []
+for i in range(9):
+    testlist.append(section(i, [x for x in range(i)]))
 
-# newrow = _makerow(newintlist)
+for i in testlist:
+    j: section = i
+    print(j.index, j.possibilities)
 
-# showrowlist(newrow)

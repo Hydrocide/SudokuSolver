@@ -134,10 +134,11 @@ class Board:
         """
         
         """
-        row_i = index//9
-        col_i = index%9
-        sec_i = ((index//9)//3)*3 + (index%9)//3
-        return
+        rowelements = set(self.row[index//9])
+        colelements = set(self.col[index%9])
+        secelements = set(self.sec[((index//9)//3)*3 + (index%9)//3])
+        default = set([i for i in range(1,10)])
+        return list(default - rowelements - colelements - secelements)
 
     def generateboardpossibilities(self) -> None:
         """

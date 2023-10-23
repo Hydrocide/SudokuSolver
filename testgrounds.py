@@ -169,22 +169,37 @@ def showseclist(sec: list[list[str]]) -> str:
     print(outline)
     return outline
 
+def generatetilepossibilities(index: int) -> list[int]:
+    """
+    
+    """
+    rowelements = set(row[index//9])
+    colelements = set(col[index%9])
+    secelements = set(sec[((index//9)//3)*3 + (index%9)//3])
+    
+    default = set([i for i in range(1,10)])
+
+    return list(default - rowelements - colelements - secelements)
 
 
 
-
-
-intlist = _makeintlist(rawstr)
+testrawstr = "000000001020000000000000000000000000000000000000000000000000000000000000300000000"
+#intlist = _makeintlist(rawstr)
 #intlist = maketestintlist()
-
+intlist = _makeintlist(testrawstr)
 
 row = _makerow(intlist)
 col = _makecol(intlist)
 sec = _makesec(intlist)
 
-# showrowlist(row)
+showrowlist(row)
 # showcollist(col)
 # showseclist(sec)
+
+
+print(generatetilepossibilities(0))
+
+
 
 class section:
     index: int
@@ -193,12 +208,13 @@ class section:
     def __init__(self, index: int, possibilities: list[int]) -> None:
         self.index = index
         self.possibilities = possibilities
-    
-testlist = []
-for i in range(9):
-    testlist.append(section(i, [x for x in range(i)]))
 
-for i in testlist:
-    j: section = i
-    print(j.index, j.possibilities)
+def sumn():
+    testlist = []
+    for i in range(9):
+        testlist.append(section(i, [x for x in range(i)]))
+
+    for i in testlist:
+        j: section = i
+        print(j.index, j.possibilities)
 

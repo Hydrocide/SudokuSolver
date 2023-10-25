@@ -1,11 +1,13 @@
 
 rawstr = '653718294248569317917234658594382176872196435136475982789643521421957863365821749'
+sudoraw = "089005140300817006710604380043900000970000014000008730096402071400159002021700490"
+sudosolvedraw = "689325147354817926712694385243971658978563214165248739896432571437159862521786493"
 row = []
 col = []
 mat = []
 
-
-
+intlist: list[int | list[int]] = []
+indexstack = []
 
 def lstring(string: str, length: int, char: str):
     out = ''
@@ -169,35 +171,180 @@ def showseclist(sec: list[list[str]]) -> str:
     print(outline)
     return outline
 
-def generatetilepossibilities(index: int) -> list[int]:
+
+
+
+def showintlist(intlist: list[int | list[int]]) -> str:
     """
     
     """
+    intlist2 = []
+    for i in intlist:
+        if type(i) is list:
+            i = "?"
+        else:
+            i = str(i)
+        intlist2.append(i)
+    intlist = intlist2
+    out = ''
+    for section in range(3):
+        for line in range(3):
+            for i in range(0, 9, 3):
+                out += str(intlist[i+(line+section*3)*9:i+3+(line+section*3)*9]) + '  '
+            out += '\n'
+
+        out += '\n'
+        out.replace('\'','')
+    print(out)
+    return out
+
+def _row(index: int, intlist: list[int | list[int]] = intlist) -> list[int | list[int]]:
+    """
+
+    """
+    #return intlist[index//9:index//9 + 9] #RETURNS NUMBERS
+    return [i for i in range((index//9)*9, (index//9)*9+9)] #RETURNS INDECIES 
+
+def _col(index: int, intlist: list[int | list[int]] = intlist) -> list[int | list[int]]:
+    """
+
+    """
+    #return [intlist[i] for i in range(index%9, 81, 9)] #RETURNS NUMBERS
+    return [i for i in range(index%9, 81, 9)] #RETURNS INDECIES 
+
+def _sec(index: int, intlist: list[int | list[int]] = intlist) -> list[int | list[int]]:
+    """
+
+    """
+    i = ((index//9)//3)*3 + (index%9)//3
+    #return intlist[0+3*i:3+3*i] + intlist[9+3*i:12+3*i] + intlist[18+3*i:21+3*i] #RETURNS NUMBERS
+    return [j for j in range(3*i,3+3*i)] + [j for j in range(9+3*i,12+3*i)] + [j for j in range(18+3*i,21+3*i)] #RETURNS INDECIES 
+    
+
+
+
+#intlist type for copy/paste
+#list[int | list[int]]
+
+def generatetilepossibilities_old(index: int, intlist: list[int | list[int]]) -> list[int | list[int]]:
+    """
+    
+    """
+    #row, col, and sec should be functions returning areas of intlist
     rowelements = set(row[index//9])
     colelements = set(col[index%9])
     secelements = set(sec[((index//9)//3)*3 + (index%9)//3])
     
     default = set([i for i in range(1,10)])
 
-    return list(default - rowelements - colelements - secelements)
+    out = list(default - rowelements - colelements - secelements)
+    if len(out) == 0:
+        raise Exception("No Tile Possibilities. Sudoku failed.")
+    if len(out) == 1:
+        row[index//9][index%9] = out[0]
+        col[index%9][index//9] = out[0]
+        sec[((index//9)//3)*3 + (index%9)//3][((index%9)//3)*3 + (index//9)//3] = out[0]# THIS IS A GUESS
+        pass
+    return out
+
+initialpossiblitiesgenerated= False
+
+def crunch(index: int):
+    if type(intlist[index]) is list:
+        if len(intlist[index]) > 0: 
+            intlist[index] = intlist[index][0]
+        else:
+            #print("EMPTY INTLIST VALUE")
+            #showintlist(intlist)
+            pass
+    rowindecies = _row(index)
+    colindecies = _col(index)
+    secindecies = _sec(index)
+    for i in set(rowindecies + colindecies + secindecies):
+        if type(intlist[i]) is list:
+            if intlist[index] in intlist[i]:
+                intlist[i].remove(intlist[index])
+            if len(intlist[i]) == 1:
+                indexstack.append(i)
+    print(indexstack)
+
+def generatetilepossibilities(index: int) -> list[int | list[int]]:
+    rowelements = [intlist[i] for i in _row(index)]
+    colelements = [intlist[i] for i in _col(index)]
+    secelements = [intlist[i] for i in _sec(index)]
+    allelements = rowelements + colelements + secelements
+    elements = []
+    for i in allelements:
+        if type(i) is int:
+            elements.append(i)
+
+    numbers = set([i for i in range(1,10)])
+    
+    out = list(numbers - set(elements))
+    #out = list(numbers - rowelements - colelements - secelements)
+    if len(out) == 0:
+        print("No Tile Possibilities.")
+        #raise Exception("No Tile Possibilities. Sudoku failed.")
+    if len(out) == 1:
+        indexstack.append(index)
+        # if initialpossiblitiesgenerated:
+        #     crunch(index)
+    return out
+
+def generateinitialpossibilities(): # old parameter: "intlist: list[int | list[int]]" is there why?
+    
+    for i in range(len(intlist)):
+        if type(intlist[i]) is int and intlist[i] == 0:
+            intlist[i] = generatetilepossibilities(i)
+    # initialpossiblitiesgenerated = True
 
 
+def crunchindexstack():
+    while len(indexstack) > 0:
+        #generatetilepossibilities(indexstack.pop(-1))
+        crunch(indexstack.pop(-1))
+        
 
-testrawstr = "000000001020000000000000000000000000000000000000000000000000000000000000300000000"
+
+gtptestrawstr1 = "000000001020000000000000000000000000000000000000000000000000000000000000300000000"
+gtptestrawstr2 = "000456781020000000000000000000000000000000000000000000000000000000000000300000000"
 #intlist = _makeintlist(rawstr)
 #intlist = maketestintlist()
-intlist = _makeintlist(testrawstr)
+intlist = _makeintlist(sudoraw)
+intlistsolved = _makeintlist(sudosolvedraw)
 
 row = _makerow(intlist)
 col = _makecol(intlist)
 sec = _makesec(intlist)
 
-showrowlist(row)
+
+# showrowlist(row)
 # showcollist(col)
 # showseclist(sec)
 
+showintlist(intlist)
 
-print(generatetilepossibilities(0))
+# print(_row(0))
+# print(_col(0))
+# print(_sec(0))
+
+# print(generatetilepossibilities(0))
+
+
+# showrowlist(row)
+# showcollist(col)
+# showseclist(sec)
+
+generateinitialpossibilities()
+
+crunchindexstack()
+
+showintlist(intlist)
+
+showintlist(intlistsolved)
+
+# crunchindexstack()
+
 
 
 

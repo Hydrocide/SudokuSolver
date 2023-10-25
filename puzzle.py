@@ -50,6 +50,8 @@ class Board:
     row: list[list[int]]
     mat: list[list[int]]
 
+    indexstack: list[int] # represents a stack of indecies to be evaluated on
+
     def _isperfectsquare(num: int) -> bool:
         return int(num**0.5)**2 == num
 
